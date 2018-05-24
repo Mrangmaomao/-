@@ -111,7 +111,7 @@ class Ajax extends fn{
     handleError(err){
         console.log(err) // 根据项目规则来展示 错误
     }
-    $post(url,par = {},fn){ // post
+    post(url,par = {},fn){ // post
         let _this = this;
         this.http.$post(url,par).then( (res) => {
             if ( fn && super.isFunction(fn) ) {
@@ -123,17 +123,22 @@ class Ajax extends fn{
             _this.handleError(err)
         })
     }
-    $get(url,par = {}) { // get
+    get(url,par = {}) { // get
         let _this = this;
         let sendUrl = `${url}?${self.getPar(par)}`;
         _this.http.$get( sendUrl ).then( (res) => {
-            fn( res.data )
+            if ( fn && super.isFunction(fn) ) {
+                fn( res.data )
+            } else {
+                _this.handleError( err );
+            }
         }).catch(( err ) => {
             _this.handleError(err)
         })
     }
 }
-let fn = new Fn();
+let $fn = new Fn();
+let $ajax = new Ajax();
 export {
-    fn
+    $fn, $ajax
 }
