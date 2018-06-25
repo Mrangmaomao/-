@@ -1,0 +1,359 @@
+<html>
+    <head>
+        <title>测速</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+        <meta content="yes" name="apple-mobile-web-app-capable">
+        <meta content="black" name="apple-mobile-web-app-status-bar-style">
+        <meta content="telephone=no" name="format-detection">
+        <style>
+            .test{
+                
+                height: 34px;
+                line-height: 34px;
+                display: block;
+                border: 1px solid #409eff;
+                border-radius: 4px;
+                color: #fff;
+                background-color: #409eff;
+                
+            }
+            .pro{
+                margin-top: 20px;
+            }
+            .pro>p, .test{
+                width: 80%;
+                margin: 0 auto;
+            }
+            .pro>p,.pro>p>.state {
+                border-radius: 18px;
+                background-color:#67c23a;
+                /* border: 1px solid #67c23a; */
+                
+            }
+            .pro>p>.state{
+                height: 18px;
+                display: inline-block;
+            }
+            .pro>p{
+                height:18px;
+                line-height: 18px;
+                background-color: #efefef;
+                border: 1px solid #ddd;
+                position: relative;
+            }
+            .pro > p > .state-text {
+                position: absolute;
+                color: #333;
+                margin-right: 10px;
+                font-size: 12px;
+                right: 0px;
+                top: 0px;
+                height: 18px;
+            }
+            img{
+                width: 40%;
+                height: auto;
+                margin: 2em auto;
+                display: block;
+
+            }
+            button:focus{
+                outline: 0;
+            }
+            .state-re{
+                text-align: center;
+            }
+            .text-disabled-class{
+                background-color: '#efefef';
+                border:1px solid #efefef;
+                color: #000;
+            }
+            .text-class{
+                background-color: #409eff;
+                border:1px solid #409eff;
+                color: #fff;
+
+            }
+        </style>
+    </head>
+    <body>
+    <button class="test" >测速</button>
+    <script>
+        class Fn { // 算法 以及 公共函数
+            constructor(){}
+            cacl(faultDate,completeTime){  
+                var stime = Date.parse(new Date(faultDate));  
+                var etime = Date.parse(new Date(completeTime));  
+                var usedTime = etime - stime;  //两个时间戳相差的毫秒数  
+                var days=Math.floor(usedTime/(24*3600*1000));  
+                //计算出小时数  
+                var leave1=usedTime%(24*3600*1000);    //计算天数后剩余的毫秒数  
+                var hours=Math.floor(leave1/(3600*1000));  
+                //计算相差分钟数  
+                var leave2=leave1%(3600*1000);        //计算小时数后剩余的毫秒数  
+                var minutes=Math.floor(leave2/(60*1000)); 
+                var se = (new Date( faultDate ).getTime()- new Date(completeTime ).getTime() )/1000; // 计算相差秒数
+                //days + "天"+hours+"时"+
+                if( se == 0 ){
+                    se = '1';
+                } else if ( se<0){
+                    se = Math.abs(se);
+                }
+                var s = this.showspeed(faultDate,completeTime);
+                var time = minutes+"分" + se+'秒,' + '加载' + s;  
+                return [time,s];  
+            }  
+            showspeed( et, st) { 
+                var arr=["网速低于50KB","网速在50-100KB之间","网速在100-200KB之间","网速在200-300KB之间","视频通讯"];
+                var filesize =1024;  //measured in KB  
+                var speed = Math.round(filesize*1000)/(et - st);
+                document.title=speed;
+                var scope=(speed>0 && speed<=50)?0:(speed>50 && speed<=100)?1:(speed>=100 && speed<200)?2:(speed>=200 && speed<300)?3:3;
+                return arr[scope] 
+            } 
+            dateFtt(fmt,date) { //author: meizz   
+                var o = {   
+                    "M+" : date.getMonth()+1,                 //月份   
+                    "d+" : date.getDate(),                    //日   
+                    "h+" : date.getHours(),                   //小时   
+                    "m+" : date.getMinutes(),                 //分   
+                    "s+" : date.getSeconds(),                 //秒   
+                    "q+" : Math.floor((date.getMonth()+3)/3), //季度   
+                    "S"  : date.getMilliseconds()             //毫秒   
+                };   
+                if(/(y+)/.test(fmt))   
+                    fmt=fmt.replace(RegExp.$1, (date.getFullYear()+"").substr(4 - RegExp.$1.length));   
+                for(var k in o)   
+                    if(new RegExp("("+ k +")").test(fmt))   
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
+                return fmt;   
+            }
+            f( el ) {
+                return document.querySelector(el);
+            }
+            attr(el, attrs) { // 添加属性
+                /**
+                 * @param attrs = array
+                 * 
+                 * **/
+                return this.f(el).setAttribute(attr[0],attrs[1])
+            }
+            getAttr( el, attr ){
+                return this.f(el).getAttribute(attr)
+            }
+            removeAttr( el ,attrs ) { // 移除属性
+                /**
+                 *  @param attrs = array
+                 * 
+                 * **/
+                if ( Object.prototype.toString.call( this.getAttr(el, attrs[0])) != '[object Null]') {
+                    this.f(el).removeAttribute(attrs[0], attrs[1])
+                }
+            }
+            createEl(el){
+                return document.createElement(el);
+            }
+            removeEl(el) {
+                if ( !this.f(el) )
+                    return false;
+                else
+                    return this.f(el).parentNode.removeChild()
+            }
+            hasClass(elem, cls) {
+                cls = cls || '';
+                if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
+                return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
+            }
+            addClass(ele, cls) {
+                if (!this.hasClass(elem, cls)) {
+                    ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
+                }
+            }
+            removeClass(ele, cls) {
+                if (this.hasClass(elem, cls)) {
+                    var newClass = ' ' + elem.className.replace(/[\t\r\n]/g, '') + ' ';
+                    while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+                    newClass = newClass.replace(' ' + cls + ' ', ' ');
+                    }
+                    elem.className = newClass.replace(/^\s+|\s+$/g, '');
+                }
+            }
+
+        }
+        class Test extends Fn {
+            constructor(par){
+                super();
+                this.par = {
+                    realTimeSpac: 1000, // 实时 监听间隔
+                    realAllTime: 30000, // 实时结束时间
+                    realWriteTime: 0, // 实时写入时间
+                    data: [], // 数据
+                    sTime: '', // 开始时间
+                    eTime: '', // 结束时间
+                    btnEl: '', // 按钮 calss
+                    proTimeSpac: 200,
+                }
+                for ( let key in par ){
+                    if ( key in this.par ) {
+                        this.par[key] = par[key] 
+                    } 
+                }
+                for( let key in this.par ) {
+                    this[key] = this.par[key];
+                }
+                this.index = 0; // image index
+                let _this = this;
+                super.f(this.btnEl).addEventListener('click',() => {
+                    _this.index = 0;
+                    _this.btnDisabled(true);
+                    _this.init()
+                });
+            }
+
+            realTime( start,fn ){ // 实时监听函数
+                let _this = this;
+                if ( start ) {
+                    this.realTimeAn = setInterval( ()=> {
+                        fn && fn();
+                        if( _this.realWriteTime >= _this.par.realAllTime ) {
+                            this.clearRealTime();
+                            return _this;
+                        }
+                        _this.realWriteTime += _this.realTimeSpac;
+                    },_this.realTimeSpac)
+                } else {
+                    _this.clearRealTime();
+                }
+            }
+            clearRealTime(){
+                if (this.realTimeAn)
+                    clearInterval( this.realTimeAn )
+            }
+            getState( state ){ // 创建进度条
+                let div = super.createEl('div');
+                let text = '';
+                div.class = 'pro-' + this.mathClass;
+                div.innerHTML = `<div class="pro"><p>
+                                    <span class="state state-text-${this.mathClass}-state"></span>
+                                    <span class="state-text state-text-${this.mathClass}">${this.data[this.index].text}</span>
+                                </p></div>`;
+                return div;
+            }
+            changeState(state){
+               super.f(`.state-text-${this.mathClass}-state`).style.width = state + '%'; 
+            }
+            imgResult(bool){
+                let _this = this;
+                let time = super.cacl( _this.sTime, _this.eTime );
+                let p = super.createEl('p');
+                p.class ='state-re';
+                p.style.textAlign = 'center';
+                if ( bool ){
+                    p.innerHTML = '共计用时：' + time[0];
+                    super.f(`.state-text-${_this.mathClass}`).style.color = '#fff';
+                } else {
+                    p.innerHTML = '加载失败，加载' + time[1] ;
+                }
+                return p;
+            }
+            btnDisabled( bool ){
+                var el = super.f( this.btnEl );
+                if ( bool ) {
+                    el.disabled = 'disabled';
+                    el.style.backgroundColor = '#efefef';
+                    el.style.border = '1px solid #efefef';
+                    el.style.color = '#000';
+                } else {
+                    el.removeAttribute('disabled');
+                    el.style.backgroundColor = '#409eff';
+                    el.style.border = '1px solid #409eff';
+                    el.style.color = '#fff';
+                }
+            }
+            realIndex(){ // change index
+                let _this = this;
+                if ( _this.index < this.data.length -1 ){
+                    _this.index += 1;
+                    _this.loading = false;
+                    
+                    _this.init();
+                } else {
+                    _this.btnDisabled(false);
+                }
+            }
+            createImage(){
+                let _this = this;
+                let state = 0;
+                let div = super.createEl('div');
+                let pro = _this.getState();
+                let img = super.createEl('img');
+                div.appendChild(pro);
+                let item = this.data[this.index];
+                img.setAttribute('src',item.url);
+                document.body.appendChild(div);
+                img.onload = () => { // image loading
+                    this.eTime = new Date();
+                    this.loading = true;
+                }
+                var an = setInterval( () => { // 启动进度条
+                    if( state == 100 && _this.loading ) {
+                        clearInterval( an );
+                        let p = _this.imgResult(true);
+                        div.appendChild(p);
+                        _this.realIndex();
+                        return;
+                    } else if ( state == 90 && !_this.loading ) { // 
+                        clearInterval( an );
+                        _this.realTime(true, () => {
+                            if ( !_this.loading &&  _this.realWriteTime == _this.realAllTime ) { // 加载失败
+                                _this.clearRealTime();
+                                let p = _this.imgResult(false);
+                                _this.changeState( 0 ); 
+                                div.appendChild(p);
+                                _this.realIndex();
+                            } else if ( _this.loading ){ // 加载成功
+                                state += 10;
+                                _this.changeState( state ); 
+                                _this.clearRealTime();
+                                let p = _this.imgResult(true);
+                                div.appendChild(p);
+                                _this.realIndex();
+                            }
+                        })
+                        return;
+                    }
+                    state += 10;
+                    _this.changeState( state ); 
+                }, this.proTimeSpac)
+            }
+            init(){ // 初始化
+               this.loading = false; // 加载是否成功
+               this.mathClass = parseInt( Math.random() * 100000 );
+               this.sTime = new Date();
+               this.realWriteTime = 0;
+               this.createImage();
+                
+            }
+        }
+        var test = new Test({
+            realTimeSpac: 1500,
+            data: [
+                {
+                    name: '测速一',
+                    url: 'http://img.zcool.cn/community/0117e2571b8b246ac72538120dd8a4.jpg@1280w_1l_2o_100sh.jpg',
+                    text: 'app服务通信检测1',
+                    
+                },
+                {
+                    name: '测速二',
+                    text: 'app服务通信检测',
+                    url: 'http://img.zcool.cn/community/0117e2571b8b246ac72538120dd8a4.jpg@1280w_1l_2o_100sh.jpg'
+                }
+            ],
+            btnEl: '.test'
+        }); 
+        </script>
+    </body>
+</html>
